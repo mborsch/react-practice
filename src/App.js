@@ -1,23 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import PostDetail from "./PostDetail";
 
 function App() {
+  const [posts, setPosts] = useState([]);
+  const [postId, setPostId] = useState("");
+
+  useEffect(() => {
+    async function loadPosts() {
+      const response = await fetch(
+        `https://jsonplaceholder.typicode.com/posts?userId=1`
+      );
+      const postsAPI = await response.json();
+      setPosts(postsAPI);
+    }
+    loadPosts();
+  }, []);
+
+  function idHandler(e) {
+    e.preventDefault();
+    setPostId(e.target.id);
+  }
+
+  const postMap = posts.map((post, index) => (
+    <div key={index} postId={post.id}>
+      <h2>{post.title}</h2>
+      <ul>
+        <li id={post.id} onClick={idHandler} postId={postId} key={index}>
+          {post.body}
+        </li>
+      </ul>
+    </div>
+  ));
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div>{postMap}</div>
+      {postId.length > 0 ? <PostDetail postId={postId} /> : null}
     </div>
   );
 }
