@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from "react";
 import PostDetail from "./PostDetail";
+import NameDetail from "./NameDetail";
 
 function App() {
   const [posts, setPosts] = useState([]);
   const [postId, setPostId] = useState("");
   const [users, setUsers] = useState([]);
+  const [userId, setUserId] = useState("");
 
   useEffect(() => {
-    async function loadPosts() {
-      const response = await fetch(
-        `https://jsonplaceholder.typicode.com/posts?userId=1`
-      );
-      const postsAPI = await response.json();
-      setPosts(postsAPI);
-    }
-    loadPosts();
+    fetch("https://jsonplaceholder.typicode.com/posts?userId=1")
+      .then((response) => response.json())
+      .then(setPosts)
+      .catch((error) => {
+        console.log(error);
+      });
   }, []);
 
   useEffect(() => {
@@ -28,28 +28,35 @@ function App() {
     loadUsers();
   }, []);
 
-  function idHandler(e) {
+  const clickHandler = (e) => {
     e.preventDefault();
     setPostId(e.target.id);
+  };
+
+  function userHandler(e) {
+    e.preventDefault();
+    setUserId(e.target.id);
   }
 
-  const userMap = users.map((user, index) => (
-    <div key={index}>
-      <h2>
-        {user.name} - {user.id}
-      </h2>
-      <p>{user.email}</p>
-    </div>
-  ));
-
   const postMap = posts.map((post, index) => (
-    <div key={index} postId={post.id}>
-      <h2>{post.title}</h2>
+    <div>
       <ul>
-        <li id={post.id} onClick={idHandler} postId={postId} key={index}>
+        <h2>{post.title}</h2>
+        <li key={index} onClick={clickHandler} id={post.id}>
           {post.body}
         </li>
       </ul>
+    </div>
+  ));
+
+  const userMap = users.map((user, index) => (
+    <div key={index}>
+      <h2 id={user.id} onClick={userHandler} userId={userId} key={index}>
+        {user.name} - {user.id}
+      </h2>
+      <p id={user.id} onClick={userHandler} userId={userId} key={index}>
+        {user.email}
+      </p>
     </div>
   ));
 
@@ -58,6 +65,7 @@ function App() {
       <div>{postMap}</div>
       <div>{userMap}</div>
       {postId.length > 0 ? <PostDetail postId={postId} /> : null}
+      {userId.length > 0 ? <NameDetail userId={userId} /> : null}
     </div>
   );
 }
